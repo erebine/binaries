@@ -7,8 +7,8 @@
 A high-performance, accelerated intelligence platform.
 
 This repository serves prebuilt Xerotier binaries through GitHub Releases.
-Every release ships the `xeroctl` CLI, the XIM inference agent, the XEM
-execution agent, and the desktop app, built for Linux and macOS (Darwin).
+Every release ships the `xeroctl` CLI, the XIM inference agent, and the XEM
+execution agent for Linux and macOS (Darwin), plus the desktop app for macOS.
 
 Assets are named `<binary>-<OS>-<ARCH>`, where the suffix matches `uname -s`
 and `uname -m` on the target host, for example `xeroctl-Linux-x86_64` or
@@ -40,7 +40,20 @@ information on enrollment, configuration, and day-to-day operation.
 
 ### xeroctl (CLI)
 
-`xeroctl` is the command-line client for the Xerotier API:
+`xeroctl` is the command-line client for the Xerotier API.
+
+Install dependencies:
+
+``` shell
+# Debian/Ubuntu
+sudo apt install -y libzstd1 libcurl4 ca-certificates
+# RHEL/Rocky
+sudo dnf install -y libzstd libcurl ca-certificates
+# macOS (Homebrew)
+brew install zstd
+```
+
+Then point it at your deployment:
 
 ``` shell
 xeroctl config init
@@ -58,6 +71,20 @@ xeroctl status
 > agent. To run a fully packaged agent in a container instead, use the
 > [container-agents](https://github.com/Xerotier/container-agents) images.
 
+Install dependencies:
+
+``` shell
+# Debian/Ubuntu
+sudo apt install -y libzmq5 libsodium23 libzstd1
+# RHEL/Rocky (zeromq and libsodium ship in EPEL)
+sudo dnf install -y epel-release
+sudo dnf install -y zeromq libsodium libzstd
+# macOS (Homebrew)
+brew install zeromq zstd
+```
+
+Enroll and run:
+
 ``` shell
 export XEROTIER_AGENT_JOIN_KEY=xxxxxxxx
 xerotier-xim-agent enroll
@@ -70,6 +97,18 @@ xerotier-xim-agent run
 * The third command starts the agent from the persisted enrollment state.
 
 ### XEM execution agent
+
+Install dependencies:
+
+``` shell
+# Debian/Ubuntu
+sudo apt install -y libzmq5 libsodium23 libzstd1 libcurl4 ca-certificates
+# RHEL/Rocky (zeromq and libsodium ship in EPEL)
+sudo dnf install -y epel-release
+sudo dnf install -y zeromq libsodium libzstd libcurl ca-certificates
+# macOS (Homebrew)
+brew install zeromq zstd
+```
 
 The recommended path is `xeroctl bootstrap`, which creates the service
 account and directories, renders the agent config, installs a systemd unit,
@@ -85,24 +124,31 @@ To run the binary directly instead:
 xerotier-xem-agent --enroll-url https://your-router.example.com --join-key xxxxxxxx
 ```
 
-### Desktop app
+### Desktop app (macOS)
 
-The desktop app runs the XIM agent in-process and is a full client for the
-Xerotier API:
+The desktop app is macOS-only: it runs the XIM agent in-process and is a
+full client for the Xerotier API. The bare binary loads its runtime
+libraries from Homebrew:
 
 ``` shell
-curl -fLO "https://github.com/Xerotier/binaries/releases/latest/download/xerotier-desktop-$(uname -s)-$(uname -m)"
-chmod +x "xerotier-desktop-$(uname -s)-$(uname -m)"
-./xerotier-desktop-$(uname -s)-$(uname -m)
+brew install zeromq zstd
+```
+
+Download and launch:
+
+``` shell
+curl -fLO "https://github.com/Xerotier/binaries/releases/latest/download/xerotier-desktop-Darwin-$(uname -m)"
+chmod +x "xerotier-desktop-Darwin-$(uname -m)"
+xattr -d com.apple.quarantine "xerotier-desktop-Darwin-$(uname -m)" 2>/dev/null || true
+./"xerotier-desktop-Darwin-$(uname -m)"
 ```
 
 On first launch, open **Setup**, paste your join key, and click
 **Install & Start**.
 
-> **macOS:** prefer the notarized `Xerotier-<version>.dmg` when available;
-> see the [macOS install docs](https://xerotier.ai/docs/xim/macos). A bare
-> binary downloaded with a browser carries the quarantine attribute, which
-> you can clear with `xattr -d com.apple.quarantine <file>`.
+> **Tip:** prefer the notarized `Xerotier-<version>.dmg` when available; see
+> the [macOS install docs](https://xerotier.ai/docs/xim/macos). The DMG app
+> bundles its runtime libraries, so Homebrew is not required.
 
 ### Optional system configuration
 
