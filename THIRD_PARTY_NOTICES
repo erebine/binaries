@@ -1,0 +1,14 @@
+THIRD-PARTY NOTICES
+
+The erectl, erebine-eim-agent and erebine-eem-agent binaries statically
+link third-party Swift packages, each under its own license. Their notices
+are generated for every release from the exact package versions that
+release links, and are:
+
+  - attached to each release as the asset THIRD_PARTY_NOTICES:
+    https://github.com/Erebine/binaries/releases
+  - printed by the binaries themselves: `erectl license`,
+    `erebine-eim-agent --license`, `erebine-eem-agent --license`
+
+Use the notices attached to the release you downloaded. This file tracks no
+single release.
