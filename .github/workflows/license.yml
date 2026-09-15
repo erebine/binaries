@@ -1,0 +1,42 @@
+---
+# License compliance for this repository (work order WI-11).
+#
+# Runs on every pull request and every push to main, and fails the build when
+# LICENSE stops being the canonical text the release binaries are distributed
+# under, when THIRD_PARTY_NOTICES stops pointing at the notices attached to
+# each release or turns into a per-release snapshot, or when a non-ASCII byte
+# appears in either.
+#
+# The check needs no toolchain, no token and no network: the canonical text is
+# pinned in scripts/check-license.sh, and nothing here resolves a release or a
+# tag. The script's own self-test runs first, so a check that has stopped
+# checking anything is reported before it is trusted.
+name: License
+
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  license:
+    name: License checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: License check self-tests
+        run: bash scripts/check-license.sh --self-test
+
+      - name: License files are the texts the binaries ship under
+        run: bash scripts/check-license.sh
